@@ -6,7 +6,7 @@ public class RestHandler {
 
   @RestMethod("/apple")
   public static HttpResponse getFruits() {
-    return new HttpResponse(200, "Apple");
+    return new HttpResponse(200, "Apple", null);
   }
 
   @RestMethod("/hello/:name")

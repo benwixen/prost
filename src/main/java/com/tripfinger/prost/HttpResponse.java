@@ -8,8 +8,13 @@ public class HttpResponse {
 
   public HttpResponse() {}
 
-  public HttpResponse(Integer status, String message) {
+  public HttpResponse(Integer status, String body) {
     this.status = status;
-    this.body = String.format("{\"status\": %d, \"message\": %s}", status, message);
+    this.body = body;
+  }
+
+    public HttpResponse(Integer status, String message, Integer id) {
+    this.status = status;
+    this.body = String.format("{\"status\": %d, \"message\": %s, \"id\": %d}", status, message, id);
   }
 }
