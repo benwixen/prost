@@ -104,7 +104,7 @@ public class RequestHandler extends HttpServlet {
   private void setCorsHeaders(HttpServletResponse resp) {
     resp.setHeader("Access-Control-Allow-Origin", "*");
     resp.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-    resp.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+    resp.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization");
   }
 
   private void writeResponse(HttpServletResponse resp, HttpResponse response) throws IOException {
