@@ -1,11 +1,20 @@
 package com.tripfinger.prost;
 
+import com.tripfinger.prost.annotations.Guard;
 import com.tripfinger.prost.annotations.RestMethod;
+import com.tripfinger.prost.model.HttpMethod;
+import com.tripfinger.prost.model.HttpResponse;
 
 public class RestHandler {
 
   @RestMethod("/apple")
   public static HttpResponse getFruits() {
+    return new HttpResponse(200, "Apple", null);
+  }
+
+  @Guard
+  @RestMethod("/apple2")
+  public static HttpResponse getFruits2() {
     return new HttpResponse(200, "Apple", null);
   }
 

@@ -1,7 +1,12 @@
 package com.tripfinger.prost;
 
+import com.tripfinger.prost.annotations.Guard;
+import com.tripfinger.prost.annotations.Open;
 import com.tripfinger.prost.annotations.RestMethod;
 import com.tripfinger.prost.annotations.UrlParam;
+import com.tripfinger.prost.model.Authenticator;
+import com.tripfinger.prost.model.HttpMethod;
+import com.tripfinger.prost.model.HttpResponse;
 import com.tripfinger.prost.utils.StreamUtils;
 import com.tripfinger.prost.utils.Tuple;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -26,18 +31,43 @@ import java.util.*;
 
 public class RequestHandler extends HttpServlet {
 
-  static Map<String, Tuple<MethodEntry, Map>> restHandlers = new HashMap<>();
+  protected static Authenticator authenticator = null;
 
-  public static void setRestHandler(Class restHandler) {
+  protected static Map<String, Tuple<PathEntry, Map>> restHandlers = new HashMap<>();
+  protected static boolean guardAll = false;
+  protected static Set<HttpMethod> guardedMethods = new HashSet<>();
+
+  public void setAuthenticator(Authenticator authenticator) {
+    RequestHandler.authenticator = authenticator;
+  }
+
+  public void addMethodGuard(HttpMethod httpMethod) {
+    guardedMethods.add(httpMethod);
+  }
+
+  public void setRestHandler(Class restHandler) {
+
+    guardAll = restHandler.isAnnotationPresent(Guard.class);
 
     for(Method m: restHandler.getDeclaredMethods()) {
       if (m.isAnnotationPresent(RestMethod.class)) {
         RestMethod annotation = m.getAnnotation(RestMethod.class);
         String url = annotation.value();
+        PathEntry pathEntry = new PathEntry();
         MethodEntry methodEntry = new MethodEntry();
-        methodEntry.methods.put(annotation.method(), m);
-        methodEntry.urlParams = getUrlParamsForMethod(m);
-        compileUrlParts(getUrlParts(url), restHandlers, methodEntry);
+        methodEntry.method = m;
+        if (!guardAll && m.isAnnotationPresent(Guard.class)) {
+          methodEntry.guardStatus = GuardStatus.GUARDED;
+        }
+        else if (m.isAnnotationPresent(Open.class)) {
+          methodEntry.guardStatus = GuardStatus.OPEN;
+        }
+        else {
+          methodEntry.guardStatus = GuardStatus.NOT_SPECIFIED;
+        }
+        pathEntry.methods.put(annotation.method(), methodEntry);
+        pathEntry.urlParams = getUrlParamsForMethod(m);
+        compileUrlParts(getUrlParts(url), restHandlers, pathEntry);
       }
     }
   }
@@ -101,13 +131,13 @@ public class RequestHandler extends HttpServlet {
     doGet(req, resp);
   }
 
-  private void setCorsHeaders(HttpServletResponse resp) {
+  protected void setCorsHeaders(HttpServletResponse resp) {
     resp.setHeader("Access-Control-Allow-Origin", "*");
     resp.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
     resp.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization");
   }
 
-  private void writeResponse(HttpServletResponse resp, HttpResponse response) throws IOException {
+  protected void writeResponse(HttpServletResponse resp, HttpResponse response) throws IOException {
     resp.setContentType(response.contentType);
     resp.setStatus(response.status);
     resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -129,7 +159,7 @@ public class RequestHandler extends HttpServlet {
     }
   }
 
-  public static String getPostBodyForRequest(HttpServletRequest req) {
+  public String getPostBodyForRequest(HttpServletRequest req) {
     try (InputStream input = req.getInputStream()) {
       return StreamUtils.readStringFromInputStream(input);
     }
@@ -138,29 +168,40 @@ public class RequestHandler extends HttpServlet {
     }
   }
 
-  private static List<String> getUrlParts(String url) {
+  protected List<String> getUrlParts(String url) {
     return Arrays.asList(url.replaceFirst("^/", "").split("/"));
   }
 
+  protected enum GuardStatus {
+    NOT_SPECIFIED,
+    GUARDED,
+    OPEN
+  }
 
-  private static class MethodEntry {
-    public Map<HttpMethod, Method> methods = new HashMap<>();
+  protected class MethodEntry {
+    public Method method;
+    public GuardStatus guardStatus;
+  }
+
+
+  protected class PathEntry {
+    public Map<HttpMethod, MethodEntry> methods = new HashMap<>();
     public List<String> urlParams = new LinkedList<>();
   }
 
-  private static void compileUrlParts(List<String> urlParts, Map<String, Tuple<MethodEntry, Map>> handlers, MethodEntry m) {
+  protected void compileUrlParts(List<String> urlParts, Map<String, Tuple<PathEntry, Map>> handlers, PathEntry m) {
     String urlPart = urlParts.get(0);
     if (urlPart.startsWith(":")) {
       urlPart = "param";
     }
-    Tuple<MethodEntry, Map> entry = handlers.get(urlPart);
+    Tuple<PathEntry, Map> entry = handlers.get(urlPart);
     if (entry == null) {
       entry = new Tuple<>(null, null);
       handlers.put(urlPart, entry);
     }
     if (urlParts.size() == 1) {
       if (entry.x != null) {
-        for (Map.Entry<HttpMethod, Method> method : m.methods.entrySet()) {
+        for (Map.Entry<HttpMethod, MethodEntry> method : m.methods.entrySet()) {
           entry.x.methods.put(method.getKey(), method.getValue());
         }
         entry.x.urlParams = m.urlParams;
@@ -177,7 +218,7 @@ public class RequestHandler extends HttpServlet {
     }
   }
 
-  private static List<String> getUrlParamsForMethod(Method m) {
+  protected List<String> getUrlParamsForMethod(Method m) {
     List<String> urlParams = new LinkedList<>();
     Annotation[][] annotationArrays = m.getParameterAnnotations();
     for (Annotation[] parameterAnnotations : annotationArrays) {
@@ -189,11 +230,11 @@ public class RequestHandler extends HttpServlet {
     return urlParams;
   }
 
-  private static MethodEntry getUrlMethod(List<String> pathElements, List<Object> restParameters,
-                                          Map<String, Tuple<MethodEntry, Map>> handlers,
+  protected PathEntry getUrlMethod(List<String> pathElements, List<Object> restParameters,
+                                          Map<String, Tuple<PathEntry, Map>> handlers,
                                           HttpMethod method) {
     String pathElement = pathElements.get(0);
-    Tuple<MethodEntry, Map> element = handlers.get(pathElement);
+    Tuple<PathEntry, Map> element = handlers.get(pathElement);
     boolean addParameter = false;
     if (element == null) {
       addParameter = true;
@@ -222,7 +263,7 @@ public class RequestHandler extends HttpServlet {
       if (addParameter) {
         restParameters.add(pathElement);
       }
-      MethodEntry entry = getUrlMethod(pathElements.subList(1, pathElements.size()), restParameters, element.y, method);
+      PathEntry entry = getUrlMethod(pathElements.subList(1, pathElements.size()), restParameters, element.y, method);
       if (entry == null && addParameter) {
         restParameters.remove(restParameters.size() - 1);
       }
@@ -240,25 +281,38 @@ public class RequestHandler extends HttpServlet {
     }
   }
 
-  public static HttpResponse handleRequest(List<String> pathElements, Map<String, String> parameters) {
+  public HttpResponse handleRequest(List<String> pathElements, Map<String, String> parameters) {
     return handleRequest(HttpMethod.GET, pathElements, parameters, null, null);
   }
 
-  public static HttpResponse handleRequest(List<String> pathElements, String body) {
+  public HttpResponse handleRequest(List<String> pathElements, String body) {
     return handleRequest(HttpMethod.POST, pathElements, null, body, null);
   }
 
-  public static HttpResponse handleRequest(HttpMethod httpMethod, List<String> pathElements, Map<String, String> parameters, String body, Map<String, byte[]> files) {
+  public HttpResponse handleRequest(HttpMethod httpMethod, List<String> pathElements, Map<String, String> parameters, String body, Map<String, byte[]> files) {
+
 
     List<Object> restParameters = new LinkedList<>();
-    MethodEntry m = getUrlMethod(pathElements, restParameters, restHandlers, httpMethod);
-    if (m == null || !m.methods.containsKey(httpMethod)) {
+    PathEntry pathEntry = getUrlMethod(pathElements, restParameters, restHandlers, httpMethod);
+    if (pathEntry == null || !pathEntry.methods.containsKey(httpMethod)) {
       return new HttpResponse(404, "Resource not found: " + pathElements);
+    }
+
+    MethodEntry m = pathEntry.methods.get(httpMethod);
+    if (m.guardStatus != GuardStatus.OPEN &&
+        (guardAll || guardedMethods.contains(httpMethod) || m.guardStatus == GuardStatus.GUARDED)) {
+      if (authenticator == null) {
+        throw new RuntimeException("Method guarded but authenticator not set.");
+      }
+
+      if (!authenticator.authenticate()) {
+        return new HttpResponse(401, "Method call was not authenticated.");
+      }
     }
 
     try {
       if (httpMethod != HttpMethod.POST) {
-        for (String urlParameter : m.urlParams) {
+        for (String urlParameter : pathEntry.urlParams) {
           restParameters.add(parameters.get(urlParameter));
         }
       }
@@ -269,7 +323,7 @@ public class RequestHandler extends HttpServlet {
           restParameters.add(files);
         }
       }
-      HttpResponse response = (HttpResponse)m.methods.get(httpMethod).invoke(null, restParameters.toArray());
+      HttpResponse response = (HttpResponse)m.method.invoke(null, restParameters.toArray());
       if (response == null) {
         return new HttpResponse(404, "Resource not found: " + pathElements);
       }

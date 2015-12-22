@@ -1,4 +1,4 @@
-package com.tripfinger.prost;
+package com.tripfinger.prost.model;
 
 public enum HttpMethod {
   GET("GET"),
