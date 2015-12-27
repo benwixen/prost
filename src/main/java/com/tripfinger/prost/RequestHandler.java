@@ -4,7 +4,7 @@ import com.tripfinger.prost.annotations.Guard;
 import com.tripfinger.prost.annotations.Open;
 import com.tripfinger.prost.annotations.RestMethod;
 import com.tripfinger.prost.annotations.UrlParam;
-import com.tripfinger.prost.model.Authenticator;
+import com.tripfinger.prost.model.Authorizer;
 import com.tripfinger.prost.model.HttpMethod;
 import com.tripfinger.prost.model.HttpResponse;
 import com.tripfinger.prost.utils.StreamUtils;
@@ -31,14 +31,14 @@ import java.util.*;
 
 public class RequestHandler extends HttpServlet {
 
-  protected static Authenticator authenticator = null;
+  protected static Authorizer authorizer = null;
 
   protected static Map<String, Tuple<PathEntry, Map>> restHandlers = new HashMap<>();
   protected static boolean guardAll = false;
   protected static Set<HttpMethod> guardedMethods = new HashSet<>();
 
-  public void setAuthenticator(Authenticator authenticator) {
-    RequestHandler.authenticator = authenticator;
+  public void setAuthenticator(Authorizer authorizer) {
+    RequestHandler.authorizer = authorizer;
   }
 
   public void addMethodGuard(HttpMethod httpMethod) {
@@ -301,11 +301,11 @@ public class RequestHandler extends HttpServlet {
     MethodEntry m = pathEntry.methods.get(httpMethod);
     if (m.guardStatus != GuardStatus.OPEN &&
         (guardAll || guardedMethods.contains(httpMethod) || m.guardStatus == GuardStatus.GUARDED)) {
-      if (authenticator == null) {
+      if (authorizer == null) {
         throw new RuntimeException("Method guarded but authenticator not set.");
       }
 
-      if (!authenticator.authenticate()) {
+      if (!authorizer.isAuthorized()) {
         return new HttpResponse(401, "Method call was not authenticated.");
       }
     }

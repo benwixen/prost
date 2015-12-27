@@ -15,6 +15,6 @@ public class HttpResponse {
 
     public HttpResponse(Integer status, String message, String id) {
     this.status = status;
-    this.body = String.format("{\"status\": %d, \"message\": \"%s\", \"id\": %s}", status, message, id);
+    this.body = String.format("{\"status\": %d, \"message\": \"%s\", \"id\": \"%s\"}", status, message, id);
   }
 }

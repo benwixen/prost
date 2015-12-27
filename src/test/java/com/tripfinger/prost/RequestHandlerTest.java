@@ -1,6 +1,6 @@
 package com.tripfinger.prost;
 
-import com.tripfinger.prost.model.Authenticator;
+import com.tripfinger.prost.model.Authorizer;
 import com.tripfinger.prost.model.HttpMethod;
 import com.tripfinger.prost.model.HttpResponse;
 import org.junit.Before;
@@ -17,7 +17,7 @@ public class RequestHandlerTest {
   @Before
   public void setUp() {
     RequestHandler.restHandlers = new HashMap<>();
-    RequestHandler.authenticator = null;
+    RequestHandler.authorizer = null;
     RequestHandler.guardedMethods = new HashSet<>();
   }
 
@@ -43,9 +43,9 @@ public class RequestHandlerTest {
     assertEquals("Bye, bye, bye, Mama", response.body);
   }
 
-  private static class SimpleAuthenticator implements Authenticator {
+  private static class SimpleAuthorizer implements Authorizer {
 
-    public boolean authenticate() {
+    public boolean isAuthorized() {
       return false;
     }
   }
@@ -54,7 +54,7 @@ public class RequestHandlerTest {
   public void testHttpMethodGuards() {
 
     requestHandler.setRestHandler(RestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthenticator());
+    requestHandler.setAuthenticator(new SimpleAuthorizer());
     requestHandler.addMethodGuard(HttpMethod.GET);
 
     Map<String, String> paramaters = new HashMap<>();
@@ -67,7 +67,7 @@ public class RequestHandlerTest {
   public void testMethodGuards() {
 
     requestHandler.setRestHandler(RestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthenticator());
+    requestHandler.setAuthenticator(new SimpleAuthorizer());
 
     Map<String, String> paramaters = new HashMap<>();
     List<String> pathElements = Arrays.asList("apple2");
@@ -80,7 +80,7 @@ public class RequestHandlerTest {
   public void testClassGuards() {
 
     requestHandler.setRestHandler(GuardedRestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthenticator());
+    requestHandler.setAuthenticator(new SimpleAuthorizer());
 
     Map<String, String> paramaters = new HashMap<>();
     List<String> pathElements = Arrays.asList("apple");
