@@ -54,7 +54,7 @@ public class RequestHandlerTest {
   public void testHttpMethodGuards() {
 
     requestHandler.setRestHandler(RestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthorizer());
+    requestHandler.setAuthorizer(new SimpleAuthorizer());
     requestHandler.addMethodGuard(HttpMethod.GET);
 
     Map<String, String> paramaters = new HashMap<>();
@@ -67,7 +67,7 @@ public class RequestHandlerTest {
   public void testMethodGuards() {
 
     requestHandler.setRestHandler(RestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthorizer());
+    requestHandler.setAuthorizer(new SimpleAuthorizer());
 
     Map<String, String> paramaters = new HashMap<>();
     List<String> pathElements = Arrays.asList("apple2");
@@ -80,7 +80,7 @@ public class RequestHandlerTest {
   public void testClassGuards() {
 
     requestHandler.setRestHandler(GuardedRestHandler.class);
-    requestHandler.setAuthenticator(new SimpleAuthorizer());
+    requestHandler.setAuthorizer(new SimpleAuthorizer());
 
     Map<String, String> paramaters = new HashMap<>();
     List<String> pathElements = Arrays.asList("apple");

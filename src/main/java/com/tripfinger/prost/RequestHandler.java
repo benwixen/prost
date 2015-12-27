@@ -37,7 +37,7 @@ public class RequestHandler extends HttpServlet {
   protected static boolean guardAll = false;
   protected static Set<HttpMethod> guardedMethods = new HashSet<>();
 
-  public void setAuthenticator(Authorizer authorizer) {
+  public void setAuthorizer(Authorizer authorizer) {
     RequestHandler.authorizer = authorizer;
   }
 
@@ -302,11 +302,11 @@ public class RequestHandler extends HttpServlet {
     if (m.guardStatus != GuardStatus.OPEN &&
         (guardAll || guardedMethods.contains(httpMethod) || m.guardStatus == GuardStatus.GUARDED)) {
       if (authorizer == null) {
-        throw new RuntimeException("Method guarded but authenticator not set.");
+        throw new RuntimeException("Method guarded but authorizer not set.");
       }
 
       if (!authorizer.isAuthorized()) {
-        return new HttpResponse(401, "Method call was not authenticated.");
+        return new HttpResponse(401, "Method call was not authorized.");
       }
     }
 
