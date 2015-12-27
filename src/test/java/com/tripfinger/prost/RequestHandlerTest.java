@@ -30,7 +30,7 @@ public class RequestHandlerTest {
     List<String> pathElements = Arrays.asList("apple");
     HttpResponse response = requestHandler.handleRequest(pathElements, paramaters);
     assertEquals(200, response.status);
-    assertEquals(String.format("{\"status\": %d, \"message\": \"%s\", \"id\": null}", 200, "Apple"), response.body);
+    assertEquals(String.format("{\"status\": %d, \"message\": \"%s\", \"id\": \"null\"}", 200, "Apple"), response.body);
 
     pathElements = Arrays.asList("hello", "Boy");
     response = requestHandler.handleRequest(pathElements, paramaters);
