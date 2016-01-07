@@ -17,4 +17,10 @@ public class HttpResponse {
     this.status = status;
     this.body = String.format("{\"status\": %d, \"message\": \"%s\", \"id\": \"%s\"}", status, message, id);
   }
+
+  public static class ResponseObject {
+    public int status;
+    public String message;
+    public String id;
+  }
 }
