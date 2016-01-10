@@ -1,9 +1,9 @@
 package com.tripfinger.prost;
 
-import com.tripfinger.prost.annotations.Guard;
-import com.tripfinger.prost.annotations.RestMethod;
-import com.tripfinger.prost.model.HttpMethod;
-import com.tripfinger.prost.model.HttpResponse;
+import com.tripfinger.commons.prost.annotations.Guard;
+import com.tripfinger.commons.prost.annotations.RestMethod;
+import com.tripfinger.commons.prost.model.HttpMethod;
+import com.tripfinger.commons.prost.model.HttpResponse;
 
 public class RestHandler {
 

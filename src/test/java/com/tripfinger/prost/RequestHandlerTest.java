@@ -1,8 +1,9 @@
 package com.tripfinger.prost;
 
-import com.tripfinger.prost.model.Authorizer;
-import com.tripfinger.prost.model.HttpMethod;
-import com.tripfinger.prost.model.HttpResponse;
+import com.tripfinger.commons.prost.RequestHandler;
+import com.tripfinger.commons.prost.model.Authorizer;
+import com.tripfinger.commons.prost.model.HttpMethod;
+import com.tripfinger.commons.prost.model.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 

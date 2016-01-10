@@ -1,4 +1,4 @@
-package com.tripfinger.prost.utils;
+package com.tripfinger.commons.prost.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

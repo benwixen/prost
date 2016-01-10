@@ -1,4 +1,4 @@
-package com.tripfinger.prost.model;
+package com.tripfinger.commons.prost.model;
 
 public class HttpResponse {
 

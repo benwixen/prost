@@ -1,14 +1,14 @@
-package com.tripfinger.prost;
+package com.tripfinger.commons.prost;
 
-import com.tripfinger.prost.annotations.Guard;
-import com.tripfinger.prost.annotations.Open;
-import com.tripfinger.prost.annotations.RestMethod;
-import com.tripfinger.prost.annotations.UrlParam;
-import com.tripfinger.prost.model.Authorizer;
-import com.tripfinger.prost.model.HttpMethod;
-import com.tripfinger.prost.model.HttpResponse;
-import com.tripfinger.prost.utils.StreamUtils;
-import com.tripfinger.prost.utils.Tuple;
+import com.tripfinger.commons.prost.annotations.RestMethod;
+import com.tripfinger.commons.prost.model.Authorizer;
+import com.tripfinger.commons.prost.model.HttpMethod;
+import com.tripfinger.commons.prost.model.HttpResponse;
+import com.tripfinger.commons.prost.utils.Tuple;
+import com.tripfinger.commons.prost.annotations.Guard;
+import com.tripfinger.commons.prost.annotations.Open;
+import com.tripfinger.commons.prost.annotations.UrlParam;
+import com.tripfinger.commons.prost.utils.StreamUtils;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;

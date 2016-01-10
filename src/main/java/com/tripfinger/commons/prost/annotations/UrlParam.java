@@ -1,15 +1,12 @@
-package com.tripfinger.prost.annotations;
-
-import com.tripfinger.prost.model.HttpMethod;
+package com.tripfinger.commons.prost.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RestMethod {
+public @interface UrlParam {
   String value();
-  HttpMethod method() default HttpMethod.GET;
 }

@@ -1,4 +1,4 @@
-package com.tripfinger.prost.utils;
+package com.tripfinger.commons.prost.utils;
 
 public class Tuple<X, Y> {
   public X x;
