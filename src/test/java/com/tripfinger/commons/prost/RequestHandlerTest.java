@@ -1,6 +1,5 @@
-package com.tripfinger.prost;
+package com.tripfinger.commons.prost;
 
-import com.tripfinger.commons.prost.RequestHandler;
 import com.tripfinger.commons.prost.model.Authorizer;
 import com.tripfinger.commons.prost.model.HttpMethod;
 import com.tripfinger.commons.prost.model.HttpResponse;

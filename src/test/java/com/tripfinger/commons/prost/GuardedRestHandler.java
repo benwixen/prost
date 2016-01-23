@@ -1,4 +1,4 @@
-package com.tripfinger.prost;
+package com.tripfinger.commons.prost;
 
 import com.tripfinger.commons.prost.annotations.Guard;
 import com.tripfinger.commons.prost.annotations.Open;
