@@ -1,5 +1,7 @@
 # prost
 
+Notice: This repository is no longer being maintained, as I have switched my server side efforts towards node.js.
+
 A featherlight REST-framework for Java Servlets. Perfect for bridging server side code with an AngularJS client. Runs well on Google App Engine.
 
 ## Configuration
